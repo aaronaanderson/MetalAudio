@@ -93,16 +93,9 @@ int main()
         cleanUp();
     }
 
-    // std::cout << "Enter any input to quit.\n";
-    // std::string n;
-    // std::cin >> n;
-
-    std::string str = "";
-    char ch;
-    while ((ch = std::cin.get()) != 27) {
-        SLEEP (100);
-        str += ch;
-    }
+    std::cout << "Enter any input to quit.\n";
+    std::string n;
+    std::cin >> n;
 
     cleanUp();
     return 0;
