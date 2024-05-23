@@ -4,6 +4,16 @@
 #include <cmath>
 
 #include "DAC.hpp"
+//=============================================METAL
+#define NS_PRIVATE_IMPLEMENTATION
+#define MTL_PRIVATE_IMPLEMENTATION
+#define MTK_PRIVATE_IMPLEMENTATION
+#define CA_PRIVATE_IMPLEMENTATION
+#include <Metal/Metal.hpp>
+#include <AppKit/AppKit.hpp>
+#include <MetalKit/MetalKit.hpp>
+
+#include <simd/simd.h>
 //=============================================
 
 DeviceParameters deviceParameters (512, 48000);
@@ -17,7 +27,7 @@ void audioCallback(float* outputBuffer, float* inputBuffer,
     for (int i = 0; i < numFrames; i++)
     {
         for (int channel = 0; channel < numOutputChannels; channel++)
-            outputBuffer[i * numOutputChannels + channel] = static_cast<float> (std::sin(phase));
+            outputBuffer[i * numOutputChannels + channel] = static_cast<float> (std::sin(phase) * 0.1);
 
         phase += phaseIncrement;
     }
