@@ -15,6 +15,7 @@ double phaseIncrement = 440.0 * 2.0 * M_PI / static_cast<double> (deviceParamete
 void audioCallback(float* outputBuffer, float* inputBuffer,
                    int numFrames, int numInputChannels, int numOutputChannels) 
 {
+    // CPU Sine
     // for (int i = 0; i < numFrames; i++)
     // {
     //     for (int channel = 0; channel < numOutputChannels; channel++)
@@ -22,17 +23,15 @@ void audioCallback(float* outputBuffer, float* inputBuffer,
 
     //     phase += phaseIncrement;
     // }
-
+    
+    // GPU Sine
     compute.executeShader (outputBuffer, phase, phaseIncrement, numOutputChannels);
     phase = std::fmod (phase + (phaseIncrement * numFrames), M_PI * 2.0);
 }  
 
 int main()
 {  
-    deviceParameters.sampleRate = 48000;
-    deviceParameters.bufferFrames = 512;
     DAC dac (audioCallback, deviceParameters);
-    dac.startStream();
 
     std::cout << "Enter any input to quit.\n";
     std::string n;
