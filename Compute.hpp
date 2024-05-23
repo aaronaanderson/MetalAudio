@@ -20,13 +20,17 @@ public:
     Compute(int nBufferSamples = 512 * 2)
       : sampleBufferSize (nBufferSamples)
     {
-        // build compute pipeline
         device = MTL::CreateSystemDefaultDevice();
         buildComputePipeline (device);
         commandQue = device->newCommandQueue();
+
+        sampleBuffer = device->newBuffer(sizeof (float) * sampleBufferSize, MTL::ResourceStorageModeShared);
+        uniforms = device->newBuffer (sizeof (Uniforms), MTL::ResourceStorageModeShared);
     }
     ~Compute()
     {
+        uniforms->release();
+        sampleBuffer->release();
         computePipelineState->release();
         commandQue->release();
         device->release();
@@ -43,12 +47,15 @@ public:
         computeEncoder->setBuffer (sampleBuffer, 0, 0);
 
         Uniforms u = {(float)phaseStart, (float)phaseIncrement, (uint32_t)nChannels};
-        MTL::Buffer* uniforms = device->newBuffer (sizeof (Uniforms),MTL::ResourceStorageModeShared);
+        
+        std::memcpy (uniforms->contents(), &u, sizeof (Uniforms));
         computeEncoder->setBuffer (uniforms, 0, 1);
     
-        MTL::Size gridSize = MTL::Size( sampleBufferSize, 1, 1 );
+        MTL::Size gridSize = MTL::Size( sampleBufferSize / u.numChannels, 1, 1 );
     
         NS::UInteger threadGroupSize = computePipelineState->maxTotalThreadsPerThreadgroup();
+        if (threadGroupSize > sampleBufferSize / u.numChannels)
+            threadGroupSize = sampleBufferSize / u.numChannels;
         MTL::Size threadgroupSize( threadGroupSize, 1, 1 );
     
         computeEncoder->dispatchThreads (gridSize, threadgroupSize);
@@ -61,6 +68,8 @@ public:
         auto* r = static_cast<float*> (sampleBuffer->contents());
         for (auto i = 0; i < sampleBufferSize; i++)
             buffer[i] = r[i];
+
+        
     }
 private:
     MTL::Device* device;
@@ -68,12 +77,10 @@ private:
     MTL::ComputePipelineState* computePipelineState;
     MTL::Buffer* sampleBuffer;
     unsigned int sampleBufferSize;
-    MTL::Fence* fence;
+    MTL::Buffer* uniforms;
 
     void buildComputePipeline (MTL::Device* d)
     {
-
-
         const char* kernelSrc = R"(
             #include <metal_stdlib>
             #import "../BridgeHeader.h"
@@ -83,7 +90,11 @@ private:
                                      device const Uniforms* uniforms,
                                      uint index [[thread_position_in_grid]])
             {
-                
+                float phase = uniforms->startPhase + (index * uniforms->phaseIncrement);
+                for (uint32_t c = 0; c < uniforms->numChannels; c++)
+                {
+                    result[index * uniforms->numChannels + c] = sin(phase) * 0.1;
+                }
             })";
         NS::Error* error = nullptr;
     
