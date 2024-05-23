@@ -4,19 +4,10 @@
 #include <cmath>
 
 #include "DAC.hpp"
-//=============================================METAL
-#define NS_PRIVATE_IMPLEMENTATION
-#define MTL_PRIVATE_IMPLEMENTATION
-#define MTK_PRIVATE_IMPLEMENTATION
-#define CA_PRIVATE_IMPLEMENTATION
-#include <Metal/Metal.hpp>
-#include <AppKit/AppKit.hpp>
-#include <MetalKit/MetalKit.hpp>
-
-#include <simd/simd.h>
-//=============================================
+#include "Compute.hpp"
 
 DeviceParameters deviceParameters (512, 48000);
+Compute compute;
 
 double phase = 0.0;
 double phaseIncrement = 440.0 * 2.0 * M_PI / static_cast<double> (deviceParameters.sampleRate);
@@ -31,6 +22,9 @@ void audioCallback(float* outputBuffer, float* inputBuffer,
 
         phase += phaseIncrement;
     }
+
+    compute.executeShader (outputBuffer, phase, phaseIncrement, numOutputChannels);
+    // phase = std::fmod (phase + (phaseIncrement * numFrames), M_PI * 2.0);
 }  
 
 int main()
