@@ -37,7 +37,6 @@ public:
     }
     void executeShader (float* buffer, double phaseStart, double phaseIncrement, int nChannels)
     {
-
         MTL::CommandBuffer* commandBuffer = commandQue->commandBuffer();
         assert (commandBuffer);
     
@@ -68,8 +67,6 @@ public:
         auto* r = static_cast<float*> (sampleBuffer->contents());
         for (auto i = 0; i < sampleBufferSize; i++)
             buffer[i] = r[i];
-
-        
     }
 private:
     MTL::Device* device;
