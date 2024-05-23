@@ -57,6 +57,7 @@ public:
             exit (1);
         }
         dac.showWarnings (true);
+        startStream();
     }
     ~DAC() { endStream(); }
     int getNumInputChannels() { return deviceParameters.inputParameters.nChannels; }
