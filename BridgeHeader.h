@@ -1,5 +1,3 @@
-#include <simd/simd.h>
-
 #ifndef Uniforms_h
 #define Uniforms_h
 struct Uniforms 

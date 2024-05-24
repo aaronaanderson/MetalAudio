@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 
-void errorCallback( RtAudioErrorType /*type*/, const std::string &errorText )
+void errorCallback (RtAudioErrorType /*type*/, const std::string &errorText)
 {
   // This example error handling function simply outputs the error message to stderr.
   std::cerr << "\nerrorCallback: " << errorText << "\n\n";
@@ -32,9 +32,9 @@ struct DeviceParameters
 
 using customCallback = void (*) (float* output, float* input, int bufferSize, int numChannelsIn, int numChannelsOut);
 
-static int rtAudioCallback(void *outputBuffer, void *inputBuffer,
-                         unsigned int nFrames, double streamTime,
-                         RtAudioStreamStatus status, void *userData); 
+static int rtAudioCallback (void *outputBuffer, void *inputBuffer,
+                            unsigned int nFrames, double streamTime,
+                            RtAudioStreamStatus status, void *userData); 
 
 class DAC 
 {
@@ -101,12 +101,12 @@ private:
 };
 
 static int rtAudioCallback(void *outputBuffer, void *inputBuffer,
-                         unsigned int nFrames, double streamTime,
-                         RtAudioStreamStatus status, void *userData) 
+                           unsigned int nFrames, double streamTime,
+                           RtAudioStreamStatus status, void *userData) 
 {
     auto* o = static_cast<float*> (outputBuffer);
     auto* i = static_cast<float*> (inputBuffer);
-    auto* dac = static_cast<DAC*>   (userData);
+    auto* dac = static_cast<DAC*> (userData);
     if (dac != nullptr)
         dac->callback (o, i, nFrames, dac->getNumInputChannels(), dac->getNumOutputChannels());
 

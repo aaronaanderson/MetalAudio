@@ -1,7 +1,4 @@
 #include <cmath>
-#include <string>
-
-#include <cmath>
 
 #include "DAC.hpp"
 #include "Compute.hpp"
