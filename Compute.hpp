@@ -18,9 +18,9 @@ public:
         sampleBuffer = device->newBuffer (sizeof (float) * sampleBufferSize, MTL::ResourceStorageModeShared);
         uniforms = device->newBuffer (sizeof (Uniforms), MTL::ResourceStorageModeShared);
     }
-    ~Compute()
-    {
-        releaseResources();
+    ~Compute() 
+    { 
+        releaseResources(); 
     }
     void executeShader (float* audioBuffer, double phaseStart, double phaseIncrement, int nChannels)
     {
@@ -51,15 +51,13 @@ public:
 
         commandBuffer->commit();
         commandBuffer->waitUntilCompleted();
-        commandBuffer->release();
+
         auto* result = static_cast<float*> (sampleBuffer->contents());
-        std::memcpy (audioBuffer, result, sizeof (float) * sampleBufferSize);
-       
+        std::memcpy (audioBuffer, result, sizeof (float) * sampleBufferSize);       
     }
 private:
     MTL::Device* device;
     MTL::CommandQueue* commandQue;
-    MTL::CommandBuffer* commandBuffer;
     MTL::ComputePipelineState* computePipelineState;
     MTL::Buffer* sampleBuffer;
     unsigned int sampleBufferSize;
