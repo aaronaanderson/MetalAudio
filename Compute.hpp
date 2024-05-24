@@ -14,18 +14,13 @@ public:
     {
         device = MTL::CreateSystemDefaultDevice();
         buildComputePipeline (device);
-        commandQue = device->newCommandQueue();
-
+        
         sampleBuffer = device->newBuffer (sizeof (float) * sampleBufferSize, MTL::ResourceStorageModeShared);
         uniforms = device->newBuffer (sizeof (Uniforms), MTL::ResourceStorageModeShared);
     }
     ~Compute()
     {
-        uniforms->release();
-        sampleBuffer->release();
-        computePipelineState->release();
-        commandQue->release();
-        device->release();
+        releaseResources();
     }
     void executeShader (float* audioBuffer, double phaseStart, double phaseIncrement, int nChannels)
     {
@@ -33,7 +28,7 @@ public:
         assert (commandBuffer);
     
         MTL::ComputeCommandEncoder* computeEncoder = commandBuffer->computeCommandEncoder();
-    
+        
         computeEncoder->setComputePipelineState (computePipelineState);
         computeEncoder->setBuffer (sampleBuffer, 0, 0);
 
@@ -56,13 +51,15 @@ public:
 
         commandBuffer->commit();
         commandBuffer->waitUntilCompleted();
-
+        commandBuffer->release();
         auto* result = static_cast<float*> (sampleBuffer->contents());
         std::memcpy (audioBuffer, result, sizeof (float) * sampleBufferSize);
+       
     }
 private:
     MTL::Device* device;
     MTL::CommandQueue* commandQue;
+    MTL::CommandBuffer* commandBuffer;
     MTL::ComputePipelineState* computePipelineState;
     MTL::Buffer* sampleBuffer;
     unsigned int sampleBufferSize;
@@ -104,5 +101,15 @@ private:
     
         sineFunction->release();
         computeLibrary->release();
+
+        commandQue = device->newCommandQueue();
+    }
+    void releaseResources()
+    {
+        uniforms->release();
+        sampleBuffer->release();
+        computePipelineState->release();
+        commandQue->release();
+        device->release();
     }
 };
